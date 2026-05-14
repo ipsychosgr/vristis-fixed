@@ -2,7 +2,6 @@ import discord
 import requests
 import random
 import os
-import json
 
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
@@ -27,20 +26,14 @@ async def on_message(message):
     pool = random.sample(vrisies, 4)
     prompt = f"Είσαι ένας αγροίκος και εριστικός τύπος από το χωριό. Απάντα σύντομα και εριστικά σε αυτό: '{message.content}'. Χρησιμοποίησε οπωσδήποτε μερικές από αυτές τις λέξεις: {', '.join(pool)}. Μην χρησιμοποιείς bold."
 
-    # Απευθείας κλήση στο API χωρίς τη βιβλιοθήκη που κολλάει
+    # Χρησιμοποιούμε το v1beta αλλά με το ΝΕΟ κλειδί
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     headers = {'Content-Type': 'application/json'}
-    data = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }]
-    }
+    data = {"contents": [{"parts": [{"text": prompt}]}]}
 
     try:
         response = requests.post(url, headers=headers, json=data)
         result = response.json()
-        
-        # Log για να βλέπουμε τι μας απαντάει η Google
         if 'candidates' in result:
             bot_response = result['candidates'][0]['content']['parts'][0]['text']
             await message.channel.send(bot_response)
