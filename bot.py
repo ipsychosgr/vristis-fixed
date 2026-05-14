@@ -3,11 +3,11 @@ import google.generativeai as genai
 import random
 import os
 
-# Μεταβλητές από Railway
+# Μεταβλητές Railway
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
-# Ρύθμιση Gemini - Το 'gemini-1.5-flash' είναι το στάνταρ για νέα κλειδιά
+# Ρύθμιση Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
@@ -27,19 +27,17 @@ async def on_message(message):
     if message.author == client.user:
         return
     
-    # Log για να βλέπουμε στο Railway ότι το μήνυμα έφτασε
     print(f"Είδα μήνυμα από {message.author}: {message.content}")
 
     pool = random.sample(vrisies, 4)
     prompt = f"Είσαι ένας αγροίκος και εριστικός τύπος από το χωριό. Απάντα σύντομα και εριστικά σε αυτό: '{message.content}'. Χρησιμοποίησε οπωσδήποτε μερικές από αυτές τις λέξεις: {', '.join(pool)}. Μην χρησιμοποιείς bold."
 
     try:
-        # Χρήση του σωστού τρόπου κλήσης για το 2026
         response = model.generate_content(prompt)
-        if response.text:
+        # Χρησιμοποιούμε το response.text αφού βεβαιωθούμε ότι υπάρχει
+        if response:
             await message.channel.send(response.text)
     except Exception as e:
-        # Αν ξαναβγάλει 404, θα το δούμε εδώ με λεπτομέρειες
         print(f"Σφάλμα στο Gemini: {e}")
 
 client.run(DISCORD_TOKEN)
